@@ -1,13 +1,17 @@
 ---
-title: "Prediction for Proper Weight-Lifting Exercise Data"
+title: "Prediction for Proper Weight-Lifting Exercises Using Random Forests"
 author: "Matthew Sedlar"
 date: "January 20, 2016"
 output: html_document
 ---
 
+## Summary
+
+Using Random Forests, I can predict with 99% accuracy whether a participant in a data set looking at weight-lifting exercises had used proper or improper form while performing a set of repititions during a unilateral dumbbell bicep curl. 
+
 ## Data
 
-The data comes from a paper titled "Qualitative Activity Recognition of Weight Lifting Exercises." According to the authors:
+The data comes from a paper titled ["Qualitative Activity Recognition of Weight Lifting Exercises."][1] According to the authors:
 
 > Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E).
 
@@ -32,7 +36,7 @@ test <- data[-trainIndex, ]
 
 In order to properly evaluate the variables, I had to clean up the data set, identifying and removing near-zero variables and columns with a large amount of missing values. 
 
-```{r warning=FALSE, message=FALSE}
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 
 require(dplyr)
 
@@ -70,14 +74,24 @@ test$classe <- as.factor(test$classe)
 
 ## Selecting an Algorithm
 
-Since I was trying to predict a classification variable, I originally chose a CART model but was unable to get a satisfactory accuracy with the final model. I finally settled on Leo Breiman's Random Forests algorithm, which resulted in much better accuracy. However, I chose to use the randomForest package, not caret's train function because I found caret to be buggy and memory-instensive. These calculations were done on a Chromebook running Linux with very little processing power, so I had little patience with caret.
+Since I was trying to predict a classification variable, I originally chose a CART model but was unable to get a satisfactory accuracy rate. I finally settled on Leo Breiman's Random Forests algorithm, which resulted in much better accuracy. It should be noted I chose to use the randomForest package, not caret's train function because I found caret to be buggy and memory-instensive. These calculations were done on a Chromebook running Linux with very little processing power, so I had little patience with caret.
 
-```{r echo=FALSE, warning=FALSE, message=FALSE, cache=TRUE}
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 
 require(randomForest)
 
 set.seed(1234)
-trees <- randomForest(classe ~., data=train)
+trees <- randomForest(classe ~., data=train, ntree=300)
+
+pred <- predict(trees,test[,-1])
+
+```
+
+After fitting the model, several variables of importance were measured by the algorithm. The plot below shows the mean decrease in Gini coefficient for each variable, displaying how each variable contributes to the homogeneity of the nodes and leaves in the model.
+
+```{r echo=FALSE}
+
+varImpPlot(trees, main="Variable Importance Plot of Random Forests Model", n.var=20)
 
 ```
 
@@ -87,18 +101,34 @@ Because I used Random Forests, there was no reason to conduct cross-validation. 
 
 > Each tree is constructed using a different bootstrap sample from the original data. About one-third of the cases are left out of the bootstrap sample and not used in the construction of the kth tree.
 
-## Results
-
-The table below shows the confusion matrix for my model.
+The out-of-bag (OOB) error estimate for the model is 0.64%. The plot below shows the error rate for each classification over the course of adding each tree.
 
 ```{r echo=FALSE}
+plot(trees,log="y", main="Overall Error for Random Forest Model")
+legend("topright",
+       legend=unique(train$classe), 
+       col=unique(as.numeric(train$classe)), 
+       pch=19)
+```
+
+## Results
+
+I was concerned that with such a low OOB that the model was overfitting, basically memorizing the training set. The table below, however, shows the confusion matrix using the model to predict the test set, with the associated estimated classification error rate for each class.
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
 
 require(knitr)
 
-pred <- predict(trees,test[,-1])
 acc_table <- table(test$classe,pred)
 
-kable(acc_table)
-
+kable(trees$confusion)
 
 ```
+
+While it misses a few classifications, the overall accuracy of the model is `r round(sum(diag(acc_table))/margin.table(acc_table),2) * 100`%. The model was later used to correctly predict 20 out of 20 observations without a classifier in the course's final quiz.
+
+##  Conclusion
+
+With `r round(sum(diag(acc_table))/margin.table(acc_table),2) * 100`% accuracy, my Random Forests model proved to be successful in predicting classifiers in the data set.
+
+[1]: Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H. Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
