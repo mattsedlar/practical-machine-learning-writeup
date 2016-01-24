@@ -1,7 +1,7 @@
 ---
 title: "Prediction for Proper Weight-Lifting Exercises Using Random Forests"
 author: "Matthew Sedlar"
-date: "January 20, 2016"
+date: "January 24, 2016"
 output: html_document
 ---
 
@@ -13,7 +13,7 @@ Using Random Forests, I can predict with 99% accuracy whether a participant in a
 
 The data comes from a paper titled "Qualitative Activity Recognition of Weight Lifting Exercises."[1] According to the authors:
 
-> Six young health participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E).
+> Six young healthy participants were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell only halfway (Class C), lowering the dumbbell only halfway (Class D) and throwing the hips to the front (Class E).
 
 The participants were wearing sensors on their arms, forearms, and waist (belt), and a sensor was placed on the dumbbell.
 
@@ -74,7 +74,7 @@ test$classe <- as.factor(test$classe)
 
 ## Selecting an Algorithm
 
-Since I was trying to predict a classification variable, I originally chose a CART model but was unable to get a satisfactory accuracy rate. I finally settled on Leo Breiman's Random Forests algorithm, which resulted in much better accuracy. It should be noted I chose to use the randomForest package, not caret's train function because I found caret to be buggy and memory-instensive. These calculations were done on a Chromebook running Linux with very little processing power, so I had little patience with caret.
+Since I was trying to predict a classification variable, I originally chose a CART model but was unable to get a satisfactory accuracy rate. I finally settled on Leo Breiman's Random Forests algorithm, which resulted in much better accuracy. It should be noted I chose to use the randomForest package, not caret's train function, because I found caret to be buggy and memory-instensive. These calculations were done on a Chromebook running Linux with very little processing power, so I had little patience with caret.
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -113,7 +113,7 @@ legend("topright",
 
 ## Results
 
-I was concerned that with such a low OOB that the model was overfitting, basically memorizing the training set. The table below, however, shows the confusion matrix using the model to predict the test set, with the associated estimated classification error rate for each class.
+I was concerned that with such a low OOB, the model was overfitting, basically memorizing the training set. The table below, however, shows the confusion matrix using the model to predict the test set, with the associated estimated classification error rate for each class.
 
 ```{r echo=FALSE, warning=FALSE, message=FALSE}
 
