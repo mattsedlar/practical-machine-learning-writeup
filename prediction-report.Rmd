@@ -111,7 +111,7 @@ legend("topright",
        pch=19)
 ```
 
-## Results
+## Results and Out-of-Sample Error
 
 I was concerned that with such a low OOB, the model was overfitting, basically memorizing the training set. The table below, however, shows the confusion matrix using the model to predict the test set, with the associated estimated classification error rate for each class.
 
@@ -125,7 +125,7 @@ kable(trees$confusion)
 
 ```
 
-While it misses a few classifications, the overall accuracy of the model is `r round(sum(diag(acc_table))/margin.table(acc_table),2) * 100`%. The model was later used to correctly predict 20 out of 20 observations without a classifier in the course's final quiz.
+While it misses a few classifications, the overall accuracy of the model is `r round(sum(diag(acc_table))/margin.table(acc_table),2) * 100`%. The out-of-sample error rate is low at `r round((margin.table(acc_table) - sum(diag(acc_table)))/margin.table(acc_table),3)*100`%. The model was later used to correctly predict 20 out of 20 observations without a classifier in the course's final quiz.
 
 ##  Conclusion
 
